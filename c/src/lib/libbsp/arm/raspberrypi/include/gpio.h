@@ -201,6 +201,11 @@ extern rtems_status_code gpio_select_spi_p1(void);
 extern rtems_status_code gpio_select_i2c_p1_rev2(void); 
 
 /**
+ * @brief Setups the UART0 interface on the RPI P1 GPIO header.
+ */
+extern rtems_status_code gpio_select_uart0(void);
+
+/**
  * @brief Configures a input GPIO pin pull-up resistor.
  */
 extern rtems_status_code gpio_input_mode(int pin, rpi_gpio_input_mode mode);

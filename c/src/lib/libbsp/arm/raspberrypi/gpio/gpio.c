@@ -518,7 +518,7 @@ rtems_status_code gpio_select_spi_p1(void)
  * @param[in] dev_pin Raspberry Pi GPIO pin label number (not its position 
  *            on the header). 
  *
- * @retval RTEMS_SUCCESSFUL JTAG interface successfully configured.
+ * @retval RTEMS_SUCCESSFUL I2C interface successfully configured.
  * @retval RTEMS_RESOURCE_IN_USE At least one of the required pins is currently
  *                               occupied, @see gpio_select_pin().
  */
@@ -542,6 +542,42 @@ rtems_status_code gpio_select_i2c_p1_rev2(void)
     return sc;
   }
     
+  return RTEMS_SUCCESSFUL;
+}
+
+/**
+ * @brief Setups a UART0 interface using the P1 GPIO pin header
+ *        for the models A/B and J8 header on the B+.
+ *        The following pins should be unused before calling this function:
+ *        GPIO 14 and 15.
+ *
+ * @param[in] dev_pin Raspberry Pi GPIO pin label number (not its position
+ *            on the header).
+ *
+ * @retval RTEMS_SUCCESSFUL UART0 interface successfully configured.
+ * @retval RTEMS_RESOURCE_IN_USE At least one of the required pins is currently
+ *                               occupied, @see gpio_select_pin().
+ */
+rtems_status_code gpio_select_uart0(void)
+{
+  rtems_status_code sc;
+  int pins[] = {14,15};
+
+  /* UART0 TX line. */
+  if ( (sc = gpio_select_pin(14, ALT_FUNC_0)) != RTEMS_SUCCESSFUL ) {
+      return sc;
+  }
+
+  /* UART0 RX. */
+  if ( (sc = gpio_select_pin(15, ALT_FUNC_0)) != RTEMS_SUCCESSFUL ) {
+      return sc;
+  }
+
+  /* Enable pins 14 and 15 no pull resistors. */
+  if ( (sc = gpio_setup_input_mode(pins, 2, NO_PULL_RESISTOR)) != RTEMS_SUCCESSFUL ) {
+    return sc;
+  }
+
   return RTEMS_SUCCESSFUL;
 }
 

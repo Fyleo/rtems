@@ -20,14 +20,9 @@
 
 #include <bsp.h>
 #include <bsp/irq.h>
+#include <bsp/gpio.h>
 #include <bsp/usart.h>
 #include <bsp/raspberrypi.h>
-
-static void usart_delay(uint32_t n)
-{
-   volatile uint32_t i = 0;
-   for(i = 0; i < n; i++);
-}
 
 static rtems_vector_number usart_get_irq_number(const console_tbl *ct)
 {
@@ -49,23 +44,7 @@ static void usart_set_baud(int minor, int baud)
 
 static void usart_initialize(int minor)
 {
-   unsigned int gpio_reg;
-
-   /*
-   ** Program GPIO pins for UART 0
-   */
-   gpio_reg = BCM2835_REG(BCM2835_GPIO_GPFSEL1);
-   gpio_reg &= ~(7<<12);    /* gpio14 */
-   gpio_reg |=  (4<<12);    /* alt0   */
-   gpio_reg &= ~(7<<15);    /* gpio15 */
-   gpio_reg |=  (4<<15);    /* alt0   */
-   BCM2835_REG(BCM2835_GPIO_GPFSEL1) = gpio_reg;
-
-   BCM2835_REG(BCM2835_GPIO_GPPUD) = 0;
-   usart_delay(150);
-   BCM2835_REG(BCM2835_GPIO_GPPUDCLK0) = (1<<14)|(1<<15);
-   usart_delay(150);
-   BCM2835_REG(BCM2835_GPIO_GPPUDCLK0) = 0;
+   gpio_select_uart0();
 
    /*
    ** Init the PL011 UART
@@ -83,7 +62,6 @@ static void usart_initialize(int minor)
    BCM2835_REG(BCM2835_UART0_IMSC) = BCM2835_UART0_IMSC_RX;
 
    usart_set_baud(minor, 115000);
-
 }
 
 static int usart_first_open(int major, int minor, void *arg)
