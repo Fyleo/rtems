@@ -44,7 +44,12 @@ static void usart_set_baud(int minor, int baud)
 
 static void usart_initialize(int minor)
 {
-   gpio_select_uart0();
+
+  gpio_initialize ();
+
+  if ( gpio_select_uart0() < 0 ) {
+    return RTEMS_RESOURCE_IN_USE;
+  }
 
    /*
    ** Init the PL011 UART
